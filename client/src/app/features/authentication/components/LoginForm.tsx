@@ -4,9 +4,13 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { z } from 'zod'
 import { BrandSignature } from './BrandSignature'
 import { calmTransition, revealUp } from '../../../../shared/motion/variants'
+import { loginRequest } from '../../../lib/api'
+import { useAuth } from '../../../auth/AuthContext'
+import { sanitizeReturnUrl } from '../../../lib/returnUrl'
 
 type LoginFields = {
   email: string
@@ -20,6 +24,10 @@ export function LoginForm() {
   const reduceMotion = useReducedMotion()
   const [isPasswordVisible, setPasswordVisible] = useState(false)
   const [feedback, setFeedback] = useState<Feedback>('idle')
+  const [serverError, setServerError] = useState<string | null>(null)
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const { setPrincipal } = useAuth()
 
   const schema = useMemo(
     () =>
@@ -45,12 +53,35 @@ export function LoginForm() {
     mode: 'onBlur',
   })
 
-  const submit = async () => {
-    setFeedback('submitted')
+  const submit = async (data: LoginFields) => {
+    setServerError(null)
+    setFeedback('idle')
+    try {
+      const principal = await loginRequest(data.email, data.password)
+      setPrincipal(principal)
+      setFeedback('submitted')
+      const raw = searchParams.get('returnUrl')
+      const safe = sanitizeReturnUrl(raw) ?? '/'
+      // Small delay to let the submitted feedback be announced before navigation
+      window.setTimeout(() => {
+        void navigate(safe, { replace: true })
+      }, 300)
+    } catch (err) {
+      const apiErr = err as { status?: number; message?: string }
+      if (apiErr?.status === 401) {
+        setServerError(t('login.error.invalidCredentials'))
+      } else if (apiErr?.message) {
+        // H-4: surface JSON { error: string } message consistently
+        setServerError(apiErr.message)
+      } else {
+        setServerError(t('login.error.generic'))
+      }
+    }
   }
 
   const emailErrorId = 'login-email-error'
   const passwordErrorId = 'login-password-error'
+  const serverErrorId = 'login-server-error'
 
   return (
     <motion.section
@@ -71,6 +102,24 @@ export function LoginForm() {
       </div>
 
       <form className="space-y-5" noValidate onSubmit={handleSubmit(submit)}>
+        {/* H-4 consistent server error surface */}
+        <AnimatePresence initial={false}>
+          {serverError && (
+            <motion.div
+              id={serverErrorId}
+              role="alert"
+              aria-live="assertive"
+              initial={reduceMotion ? false : { opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reduceMotion ? undefined : { opacity: 0, y: -4 }}
+              transition={calmTransition}
+              className="rounded-xl border border-danger/20 bg-danger/5 px-4 py-3 text-sm leading-6 text-danger"
+            >
+              {serverError}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div>
           <label className="mb-2 block text-sm font-semibold text-text" htmlFor="login-email">
             {t('login.emailLabel')}
@@ -122,7 +171,7 @@ export function LoginForm() {
               {...register('password')}
             />
             <button
-              className="absolute right-2 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-md text-text-muted transition-colors duration-200 hover:bg-surface-subtle hover:text-ink"
+              className="absolute right-2 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-md text-text-muted transition-colors duration-200 hover:bg-surface-subtle hover:text-ink focus:outline-none focus-visible:ring-3 focus-visible:ring-focus/30"
               type="button"
               aria-label={t(isPasswordVisible ? 'login.hidePassword' : 'login.showPassword')}
               onClick={() => setPasswordVisible((visible) => !visible)}
@@ -148,26 +197,30 @@ export function LoginForm() {
         </div>
 
         <button
-          className="-mt-1 rounded-md text-sm font-medium text-accent transition-colors duration-200 hover:text-accent-hover"
+          className="rounded-md text-sm font-medium text-accent transition-colors duration-200 hover:text-accent-hover focus:outline-none focus-visible:ring-3 focus-visible:ring-focus/30"
           type="button"
-          onClick={() => setFeedback('forgot')}
+          onClick={() => setFeedback((f) => (f === 'forgot' ? 'idle' : 'forgot'))}
+          aria-expanded={feedback === 'forgot'}
         >
           {t('login.forgotPassword')}
         </button>
 
         <button
-          className="flex h-15 w-full items-center justify-center rounded-[var(--radius-control)] bg-ink px-5 text-base font-semibold text-surface transition-[background-color,box-shadow] duration-200 hover:bg-ink-strong focus:outline-none focus:ring-3 focus:ring-focus/30 disabled:cursor-wait disabled:opacity-70"
+          className="flex h-15 w-full items-center justify-center rounded-[var(--radius-control)] bg-ink px-5 text-base font-semibold text-surface transition-[background-color,box-shadow] duration-200 hover:bg-ink-strong focus:outline-none focus-visible:ring-3 focus-visible:ring-focus/30 disabled:cursor-wait disabled:opacity-70"
           type="submit"
           disabled={isSubmitting}
+          aria-busy={isSubmitting}
+          aria-describedby={serverError ? serverErrorId : undefined}
         >
           {isSubmitting ? t('login.submitting') : t('login.submit')}
         </button>
 
         <AnimatePresence initial={false}>
-          {feedback !== 'idle' && (
+          {feedback !== 'idle' && !serverError && (
             <motion.p
               className={feedback === 'submitted' ? 'text-sm text-success' : 'text-sm text-text-muted'}
               role="status"
+              aria-live="polite"
               initial={reduceMotion ? false : { opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={reduceMotion ? undefined : { opacity: 0, y: -4 }}
@@ -181,7 +234,10 @@ export function LoginForm() {
 
       <p className="mt-9 text-center text-sm leading-6 text-text-muted">
         {t('login.contactPrompt')}{' '}
-        <a className="font-medium text-accent transition-colors duration-200 hover:text-accent-hover" href="mailto:administrator@donarium.invalid">
+        <a
+          className="font-medium text-accent transition-colors duration-200 hover:text-accent-hover focus:outline-none focus-visible:ring-3 focus-visible:ring-focus/30 rounded"
+          href="mailto:administrator@donarium.invalid"
+        >
           {t('login.contactAction')}
         </a>
       </p>

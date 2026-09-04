@@ -15,6 +15,9 @@ import (
 	"donarium/server/internal/platform/config"
 	"donarium/server/internal/platform/database"
 	"donarium/server/internal/platform/runtime"
+	propertiesApp "donarium/server/internal/properties/application"
+	propertieshttp "donarium/server/internal/properties/http"
+	propertiespgx "donarium/server/internal/properties/pgx"
 )
 
 func main() {
@@ -88,7 +91,13 @@ func run() int {
 	platformRuntime := runtime.NewPlatformRuntime(pool, logger)
 	identityRuntime := identityhttp.NewIdentityRuntime(pool, txSetup, authService, cookieWriter, authMiddleware)
 
-	appRuntime := runtime.NewApplication(*cfg, platformRuntime, identityRuntime)
+	propertyRepo := propertiespgx.NewRepository()
+	stakeholderRepo := propertiespgx.NewStakeholderRepository()
+	propertyTx := propertiespgx.NewTransactionManager(pool)
+	propertyService := propertiesApp.NewServiceWithStakeholders(propertyRepo, stakeholderRepo, propertyTx)
+	propertiesRuntime := propertieshttp.NewRuntime(pool, propertyService, authMiddleware)
+
+	appRuntime := runtime.NewApplication(*cfg, platformRuntime, identityRuntime, propertiesRuntime)
 	defer func() {
 		if err := appRuntime.Close(); err != nil {
 			slog.Error("runtime close error", "error", err)

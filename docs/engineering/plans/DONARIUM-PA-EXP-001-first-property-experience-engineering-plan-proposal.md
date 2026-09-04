@@ -80,15 +80,15 @@ Approval covers scope, assumptions A-3…A-14, candidate work nodes EP-001.01…
 
 - **Task specification** — `docs/agents/tasks/engineering_log_1/DONARIUM-PA-EXP-001—FirstPropertyExperienceEngineeringPlan.md`. Authoritative for scope and stop-condition.
 - **Product Authority approvals of r1 and r2** — recorded in §Revision history and the OP disposition table.
-- **Roadmap** — `ROADMAP.md`. Sequences Properties as step 5. DON-007R gating re-evaluated on evidence (see below).
-- **README** and **Design Constitution** — `README.md`, `knowledge/design/DonariumDesignConstitution.md`.
-- **Business rules** — `knowledge/business-rules.md` (BR-01…BR-09, all bootstrap-scoped).
+- **Roadmap** — `docs/roadmap/ROADMAP.md`. Sequences Properties as step 5. DON-007R gating re-evaluated on evidence (see below).
+- **README** and **Design Constitution** — `README.md`, `docs/knowledge/design/DonariumDesignConstitution.md`.
+- **Business rules** — `docs/knowledge/business-rules.md` (BR-01…BR-09, all bootstrap-scoped).
 - **Stitch project `projects/16518901730411508270`** — treated as design evidence.
 
 ### Engineering authorities
 
 - **Repository state (2026-09-02):** only `internal/identity/` implemented in Go monolith. Client has only `LoginExperience`; no router.
-- **Existing ADRs** — `knowledge/decisions/ADR-001-installation-bootstrap.md`, `ADR-002-application-level-bootstrap-invariant.md`.
+- **Existing ADRs** — `docs/adr/ADR-001-installation-bootstrap.md`, `docs/adr/ADR-002-application-level-bootstrap-invariant.md`.
 - **OSK role catalog installed** (`.osk/roles/`): `product-architect` (v0.1.0), `software-engineer` (v0.2.0), `qa-engineer` (v0.2.0), `engineering-reviewer` (v0.1.0), `platform-engineer` (v0.1.0), `knowledge-curator` (v0.1.0).
 - **OSK Blueprint discipline** — `docs/OSK.md`.
 
@@ -174,14 +174,14 @@ Token possession alone never grants access (OP-10). If no account exists for the
 - **Independent reviews:** `docs/engineering/agents/reviews/EP-001.NN-<slug>.md`.
 - **QA records:** authored by `qa-engineer`, colocated under `docs/engineering/agents/reports/`.
 - **Durable domain knowledge:** `docs/knowledge/properties/` — created by EP-001.11 when concepts are established.
-- **Business rules:** appended to `knowledge/business-rules.md` (new heading, numbered from BR-19 as they are finalized).
-- **New ADRs** (authored by the assigned Role during their slice; not stubbed at materialization):
+- **Business rules:** appended to `docs/knowledge/business-rules.md` (new heading, numbered from BR-19 as they are finalized).
+- **New ADRs** (authored by the assigned Role during their slice; not stubbed at materialization; canonical location `docs/adr/`):
   - **ADR-003** — Client routing choice (EP-001.01).
   - **ADR-004** — `PropertyStakeholder` per-property relation (EP-001.03).
   - **ADR-005** — Party model (EP-001.03).
   - **ADR-006** — Invitation semantics (EP-001.13).
   - **ADR-007** — Payment log representation (EP-001.12).
-- **Roadmap update:** `ROADMAP.md` acknowledges EP-001 delivery when nodes complete.
+- **Roadmap update:** `docs/roadmap/ROADMAP.md` acknowledges EP-001 delivery when nodes complete.
 - **Engineering log:** `docs/engineering/ENGINEERING_LOG.md` receives the EP-001 plan row at materialization; per-node rows arrive as nodes complete.
 
 ## Dependency graph

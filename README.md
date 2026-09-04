@@ -58,11 +58,14 @@ New capabilities continue to arrive as end-to-end vertical slices.
 .
 ├── client/          # React 19, TypeScript, Vite and Tailwind SPA
 ├── server/          # Go modular monolith and PostgreSQL migrations
-├── knowledge/       # Product, use-case, rule and design records
-├── docs/agents/     # Engineering tasks, reports, reviews and checkpoints
+├── docs/            # OSK-managed documentation:
+│   ├── knowledge/   #   durable current understanding (use cases, rules, architecture)
+│   ├── adr/         #   architecture decision records
+│   ├── roadmap/     #   committed direction (ROADMAP.md)
+│   ├── engineering/ #   delivery evidence + ENGINEERING_LOG.md
+│   └── agents/      #   historical slices (DON-xxx) evidence
 ├── AGENTS.md        # Working agreement and developer commands
-├── README.md        # Product vision and project entry point
-└── ROADMAP.md       # Experience-oriented delivery path
+└── README.md        # Product vision and project entry point
 ```
 
 The active Identity module contains the Initial Owner Setup slice. Other domain
@@ -91,8 +94,8 @@ agreement is in [AGENTS.md](AGENTS.md).
 ## Roadmap
 
 The roadmap is organized by the experiences Donarium will create, not by
-infrastructure milestones. See [ROADMAP.md](ROADMAP.md) for the current order
-and the prerequisite follow-ups before Authentication.
+infrastructure milestones. See [docs/roadmap/ROADMAP.md](docs/roadmap/ROADMAP.md)
+for the current order and the prerequisite follow-ups before Authentication.
 
 ## Contributing
 

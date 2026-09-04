@@ -29,7 +29,7 @@ Add only instructions required by Claude here. Keep shared project guidance in `
 - **`.env` and `POSTGRES_PASSWORD` are required** for the server to boot; there is no dotenv loader — the OS environment is authoritative. Copy `.env.example` before `make server-run`.
 - **Migrations are embedded Go files** under `server/internal/platform/database/migrations/` and run on startup. New migrations must ship as paired `.up.sql`/`.down.sql`.
 - **Ignore these directories** — they are shared from unrelated projects and describe a different stack (Java) or unrelated permissions: `.agents/skills/`, `.claude/skills/`, `.codex/skills/`, `settings.local.json`.
-- **Design constitution is binding**: `knowledge/design/DonariumDesignConstitution.md`. No generic admin dashboards, corporate blue, neon gradients, or glassmorphism.
+- **Design constitution is binding**: `docs/knowledge/design/DonariumDesignConstitution.md`. No generic admin dashboards, corporate blue, neon gradients, or glassmorphism.
 
 ### Common commands (quick reference — see `AGENTS.md` for the full list)
 

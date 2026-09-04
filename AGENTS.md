@@ -10,13 +10,18 @@ Shared understanding for contributors and agents working in this repository.
 
 ## Architecture
 
-- `server/cmd/donarium/main.go` is the single entrypoint. It loads env config, connects PostgreSQL, runs migrations, wires all dependencies, and starts the HTTP server.
-- The server is a modular monolith. Active code lives in two internal packages:
-  - **`identity/`** — users, credentials, organizations, memberships, platform grants (domain types at root; use cases in `application/`; handlers in `http/`; pgx persistence in `pgx/`)
-  - **`platform/`** — cross-cutting: `config/`, `database/` (pool + embedded migrations), `http/health/`, `runtime/` (app lifecycle)
-- Other domain dirs (`organizations/`, `properties/`, `leases/`, etc.) are `.gitkeep` placeholders awaiting their vertical slices.
-- Migrations are **embedded Go files** at `server/internal/platform/database/migrations/` and run automatically on startup. Five migration pairs exist (users, credentials, organizations, memberships, platform_grants). All SQL migrations use `.up.sql`/`.down.sql` naming.
-- The client is organized by feature under `app/features/`. i18n is active with Spanish translations at `shared/i18n/es.ts`.
+- `server/cmd/donarium/main.go` is the single entrypoint. It loads env config, connects PostgreSQL, runs migrations, wires all dependencies, and starts the HTTP server (chi router composed from `PlatformRuntime` + `IdentityRuntime` modules).
+- The server is a modular monolith. Active code lives in:
+  - **`identity/`** — Initial Owner Setup + Authentication. Layout: domain types at root (`user.go`, `credential.go`, `organization.go`, `membership.go`, `platform_grant.go`, `role.go`, `executor.go`, `repository.go`); use cases in `application/` (`setup.go`, `transactional_setup.go`, `email.go`, `password.go`, `application/authentication/`); HTTP handlers in `http/` (`handler.go`, `login_handler.go`, `me_handler.go`, `auth_middleware.go`, `session_cookie.go`, `runtime.go`); pgx persistence in `pgx/`.
+  - **`identity/authorization/`** — authorization middleware (route guards, principal context).
+  - **`platform/`** — cross-cutting: `config/`, `database/` (pool + embedded migrations), `http/health/` (liveness/readiness), `runtime/` (app lifecycle + module composition), `observability/` (reserved, currently empty).
+- Other domain dirs are `.gitkeep` placeholders awaiting their vertical slices: `organizations/`, `properties/`, `leases/`, `payments/`, `maintenance/`, `documents/`, `notifications/`.
+- Migrations are **embedded Go files** at `server/internal/platform/database/migrations/` (`//go:embed` in `database/migrate.go`) and run automatically on startup. Five migration pairs exist (`001_users`, `002_credentials`, `003_organizations`, `004_memberships`, `005_platform_grants`). All SQL migrations use `.up.sql`/`.down.sql` naming. New migrations must ship as paired files with a higher numeric prefix.
+- HTTP routes mounted by `IdentityRuntime.RegisterRoutes` and `PlatformRuntime.RegisterRoutes`:
+  - `POST /api/setup`, `GET /api/setup/status`
+  - `POST /api/auth/login`, `GET /api/auth/me` (protected)
+  - `GET /health/live`, `GET /health/ready`
+- The client is organized by feature under `app/features/`. i18n is active with Spanish translations at `shared/i18n/es.ts`. Other shared modules: `shared/design-system/tokens/tokens.css` (Tailwind v4 tokens) and `shared/motion/variants.ts`.
 
 ## Commands
 
@@ -65,21 +70,21 @@ No standalone `npm run lint` or `npm run typecheck` exists. Type checking is par
 
 - **All Go tests require PostgreSQL running.** Run `make postgres-up` first.
 - Test packages use `TEST_DATABASE_URL` env var (defaults to `postgres://donarium:donarium@localhost:5432/donarium?sslmode=disable`).
-- Tests that fail to connect to PostgreSQL **silently exit 0** (`os.Exit(0)` in `TestMain`) — they do not fail the run. Check that PostgreSQL is up before trusting test results.
+- Tests that fail to connect to PostgreSQL **silently exit 0** (`os.Exit(0)` in `TestMain`) — they do not fail the run. A green `make test` does not prove the tests ran. Check that PostgreSQL is up before trusting test results.
 - Integration tests live in `server/tests/integration/`. Unit tests are co-located with their packages (e.g. `server/internal/identity/pgx/repository_test.go`).
+- Run a single test or package: `cd server && go test ./internal/identity/pgx/ -run TestName -count=1`.
 - QA environment uses separate DB (`donarium_qa`) on port 15432 — tests against QA can target it with `TEST_DATABASE_URL=postgres://donarium_qa:donarium_qa@localhost:15432/donarium_qa?sslmode=disable`.
 
 ## What to ignore
 
-- **`settings.local.json`** — permissions from the Arbitrier project. Does not describe Donarium.
-- **`.agents/skills/`, `.claude/skills/`, `.codex/skills/`** — Java-focused skills shared from another project. Do not load them. The stack is Go + TypeScript.
+- **`settings.local.json`** (repo root) and **`.claude/settings.local.json`** — Maven/Java permission allow-lists from the Arbitrier project. They do not describe Donarium; ignore their contents.
 - **`.gitignore`** is a Go template. It also covers `client/` build output. No Go workspace files (`go.work`) are in use.
 
 ## Design and product decisions
 
-- **Design constitution is binding**: `knowledge/design/DonariumDesignConstitution.md`. Avoid generic admin dashboards, excessive tables, corporate blue, neon gradients, glassmorphism.
-- Use cases: `knowledge/use-cases/`. Roadmap: `ROADMAP.md`.
-- Engineering records: `docs/agents/` — task definitions, reports, and checkpoints from prior slices.
+- **Design constitution is binding**: `docs/knowledge/design/DonariumDesignConstitution.md`. Avoid generic admin dashboards, excessive tables, corporate blue, neon gradients, glassmorphism.
+- Use cases: `docs/knowledge/use-cases/`. ADRs: `docs/adr/`. Roadmap: `docs/roadmap/ROADMAP.md`.
+- Engineering records: historical slices (DON-xxx) live under `docs/agents/`; current work (EP-xxx) follows the `docs/engineering/` model defined in `docs/OSK.md`. Both keep their own `ENGINEERING_LOG.md` index.
 
 ## Working philosophy
 

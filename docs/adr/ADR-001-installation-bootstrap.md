@@ -13,7 +13,7 @@ la instalación.
 ## Decisión
 
 Donarium tendrá un flujo explícito de inicialización anterior al login:
-[UC-001 — Initialize Donarium](../use-cases/UC-001-initialize-donarium.md).
+[UC-001 — Initialize Donarium](../knowledge/use-cases/UC-001-initialize-donarium.md).
 
 El flujo se permite una sola vez por Installation y, en una sola transacción,
 crea la Organization inicial, el primer User, sus Credentials, su Membership y

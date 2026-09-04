@@ -251,7 +251,7 @@ como parte del diseño de TC-001.
 
 **Clasificación:** Known Technical Debt / Deferred Scenario.
 
-La [ADR-002 — Application-Level Bootstrap Invariant](../decisions/ADR-002-application-level-bootstrap-invariant.md)
+La [ADR-002 — Application-Level Bootstrap Invariant](../../adr/ADR-002-application-level-bootstrap-invariant.md)
 acepta una ventana teórica de carrera para dos solicitudes de setup exactamente
 concurrentes. Este ciclo no exige implementar ni marcar como fallido un test de
 concurrencia. Si el modelo de despliegue evoluciona, el escenario debe

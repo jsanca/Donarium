@@ -22,7 +22,7 @@
 
 ## Architecture
 
-<!-- Link the current architecture knowledge under knowledge/, or state Unknown. -->
+<!-- Link the current architecture knowledge under knowledge/architecture/, or state Unknown. -->
 
 ## Technology
 
@@ -40,4 +40,6 @@
 
 - [Workspace operating guide](OSK.md)
 - [Project knowledge](knowledge/README.md)
+- [Architecture](knowledge/architecture/index.md)
+- [Decisions](adr/README.md)
 - <!-- Requirements, architecture, external docs, decision records, or runbooks. -->
