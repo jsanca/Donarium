@@ -27,6 +27,12 @@ go.work.sum
 # env file
 .env
 
+# JavaScript dependencies and build output
+client/node_modules/
+client/dist/
+client/*.tsbuildinfo
+
 # Editor/IDE
 # .idea/
 # .vscode/
+.claude/

@@ -1,0 +1,52 @@
+services:
+  postgres-qa:
+    image: postgres:17.4-alpine
+    container_name: donarium-postgres-qa
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: donarium_qa
+      POSTGRES_USER: donarium_qa
+      POSTGRES_PASSWORD: donarium_qa
+    ports:
+      - "15432:5432"
+    volumes:
+      - postgres_qa_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U donarium_qa -d donarium_qa"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - donarium-qa
+
+  donarium-api-qa:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: donarium-api-qa
+    restart: unless-stopped
+    ports:
+      - "18080:18080"
+    environment:
+      HTTP_PORT: "18080"
+      POSTGRES_HOST: postgres-qa
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: donarium_qa
+      POSTGRES_USER: donarium_qa
+      POSTGRES_PASSWORD: donarium_qa
+      POSTGRES_SSLMODE: disable
+      DATABASE_CONNECT_TIMEOUT: 10s
+      SHUTDOWN_TIMEOUT: 10s
+    depends_on:
+      postgres-qa:
+        condition: service_healthy
+    networks:
+      - donarium-qa
+
+volumes:
+  postgres_qa_data:
+    name: donarium-postgres-qa-data
+
+networks:
+  donarium-qa:
+    name: donarium-qa-network

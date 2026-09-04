@@ -1,0 +1,32 @@
+package identity
+
+import "errors"
+
+var (
+	ErrUserNotFound            = errors.New("user not found")
+	ErrCredentialNotFound      = errors.New("credential not found")
+	ErrOrganizationNotFound    = errors.New("organization not found")
+	ErrMembershipNotFound      = errors.New("membership not found")
+	ErrDuplicateEmail          = errors.New("email already exists")
+	ErrDuplicateSlug           = errors.New("organization slug already exists")
+	ErrInvalidPassword         = errors.New("password does not meet policy requirements")
+	ErrInvalidEmail            = errors.New("email is not valid")
+	ErrAlreadyInitialized      = errors.New("installation already initialized")
+	ErrInvalidCredentials      = errors.New("the email or password is incorrect")
+	ErrInvalidSession          = errors.New("invalid session")
+	ErrExpiredSession          = errors.New("session expired")
+	ErrAuthenticationRequired  = errors.New("authentication required")
+	ErrNotAuthorized           = errors.New("not authorized")
+	ErrInvalidOrganizationRole = errors.New("invalid organization role")
+	ErrInvalidPlatformRole     = errors.New("invalid platform role")
+	ErrEmptyEmail              = errors.New("email must not be empty")
+	ErrEmptyDisplayName        = errors.New("display name must not be empty")
+	ErrInvalidDisplayName      = errors.New("display name is not valid")
+	ErrInvalidOrganizationName = errors.New("organization name is not valid")
+	ErrEmptyName               = errors.New("name must not be empty")
+	ErrEmptySlug               = errors.New("slug must not be empty")
+	ErrInvalidSlug             = errors.New("slug must contain only lowercase letters, digits, and hyphens")
+	ErrEmptyUserID             = errors.New("user id must not be empty")
+	ErrEmptyOrganizationID     = errors.New("organization id must not be empty")
+	ErrEmptyPasswordHash       = errors.New("password hash must not be empty")
+)

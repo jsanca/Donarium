@@ -1,0 +1,51 @@
+services:
+  postgres:
+    image: postgres:17.4-alpine
+    container_name: donarium-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-donarium}
+      POSTGRES_USER: ${POSTGRES_USER:-donarium}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-donarium}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-donarium} -d ${POSTGRES_DB:-donarium}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - donarium
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: donarium-server
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-8080}:${HTTP_PORT:-8080}"
+    environment:
+      HTTP_PORT: ${HTTP_PORT:-8080}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_DB: ${POSTGRES_DB:-donarium}
+      POSTGRES_USER: ${POSTGRES_USER:-donarium}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-donarium}
+      POSTGRES_SSLMODE: ${POSTGRES_SSLMODE:-disable}
+      DATABASE_CONNECT_TIMEOUT: ${DATABASE_CONNECT_TIMEOUT:-10s}
+      SHUTDOWN_TIMEOUT: ${SHUTDOWN_TIMEOUT:-10s}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - donarium
+
+volumes:
+  postgres_data:
+
+networks:
+  donarium:
+    name: donarium-network

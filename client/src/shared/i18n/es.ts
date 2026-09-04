@@ -1,0 +1,31 @@
+export const es = {
+  translation: {
+    login: {
+      brandName: 'Donarium',
+      artworkAlt: 'Boceto arquitectónico de una vivienda y llaves',
+      eyebrow: 'Tu espacio de gestión',
+      title: 'Bienvenido a Donarium',
+      subtitle: 'Administra tus propiedades, cuida tus relaciones.',
+      emailLabel: 'Correo electrónico',
+      emailPlaceholder: 'tu@correo.com',
+      passwordLabel: 'Contraseña',
+      passwordPlaceholder: 'Ingresa tu contraseña',
+      showPassword: 'Mostrar contraseña',
+      hidePassword: 'Ocultar contraseña',
+      forgotPassword: 'Olvidé mi contraseña',
+      forgotPasswordFeedback: 'La recuperación de contraseña estará disponible próximamente.',
+      submit: 'Iniciar sesión',
+      submitting: 'Preparando tu acceso',
+      submitted: 'Tu acceso está listo para continuar.',
+      contactPrompt: '¿No tienes una cuenta?',
+      contactAction: 'Contacta a tu administrador.',
+      footer: '© {{year}} Donarium. Todos los derechos reservados.',
+      validation: {
+        emailRequired: 'Ingresa tu correo electrónico.',
+        emailInvalid: 'Ingresa un correo electrónico válido.',
+        passwordRequired: 'Ingresa tu contraseña.',
+        passwordShort: 'La contraseña debe tener al menos 8 caracteres.',
+      },
+    },
+  },
+} as const
